@@ -95,3 +95,20 @@ func saveData3(path string, data []byte) error {
 	}
 	return os.Rename(tmp, path)
 }
+
+// avec cette méthode résulut la problme de persiste de la data dnas le disk
+// !!! ma ne pas la méthadata (un autre histoire ) pour cela why database are preferred over files for persistingdata to the disk
+
+func LogCreate(path string) (*os.File, error) {
+	return os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0664)
+}
+
+func logAppend(fp *os.File, line string) error {
+	buf := []byte(line)
+	buf = append(buf, '\n')
+	_, err := fp.Write(buf)
+	if err != nil {
+		return err
+	}
+	return fp.Sync()
+}
