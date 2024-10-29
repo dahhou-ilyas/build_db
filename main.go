@@ -112,3 +112,5 @@ func logAppend(fp *os.File, line string) error {
 	}
 	return fp.Sync()
 }
+
+//maintenant on try to implemtner un B_tree et voire c'est quoi sa relation avec indexation et KV store
