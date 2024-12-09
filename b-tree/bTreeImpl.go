@@ -1,5 +1,7 @@
 package b_tree
 
+import "encoding/binary"
+
 type BNode struct {
 	data []byte // can be dumped to the disk
 }
@@ -31,4 +33,19 @@ func init() {
 	if node1max > BTREE_PAGE_SIZE {
 		panic("La taille maximale du nœud dépasse la taille de la page.")
 	}
+}
+
+// header
+
+func (node BNode) btype() uint16 {
+	return binary.LittleEndian.Uint16(node.data)
+}
+
+func (node BNode) nkeys() uint16 {
+	return binary.LittleEndian.Uint16(node.data[2:4])
+}
+
+func (node BNode) setHeader(btype uint16, nkeys uint16) {
+	binary.LittleEndian.PutUint16(node.data[0:2], btype)
+	binary.LittleEndian.PutUint16(node.data[2:4], nkeys)
 }
