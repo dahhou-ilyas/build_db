@@ -151,12 +151,13 @@ func leafInsert(new BNode, old BNode, idx uint16, key []byte, val []byte) {
 }
 
 // copy multiple KVs into the position
+// a comprendre mieux
 func nodeAppendRange(new BNode, old BNode,
 	dstNew uint16, srcOld uint16, n uint16) {
 	if srcOld+n > old.nkeys() {
 		panic("")
 	}
-	if dstNew > new.nkeys() {
+	if dstNew+n > new.nkeys() {
 		panic("")
 	}
 
@@ -184,7 +185,7 @@ func nodeAppendRange(new BNode, old BNode,
 }
 
 // copy a KV into the position
-
+// a comprendre
 func nodeAppendKV(new BNode, idx uint16, ptr uint64, key []byte, val []byte) {
 	// ptrs
 	new.setPtr(idx, ptr)
@@ -196,4 +197,38 @@ func nodeAppendKV(new BNode, idx uint16, ptr uint64, key []byte, val []byte) {
 	copy(new.data[pos+4+uint16(len(key)):], val)
 	// the offset of the next key
 	new.setOffset(idx+1, new.getOffset(idx)+4+uint16((len(key)+len(val))))
+}
+
+// insert a KV into a node, the result might be split into 2 nodes.
+// the caller is responsible for deallocating the input node
+// and splitting and allocating result nodes.
+
+func treeInsert(tree *BTree, node BNode, key []byte, val []byte) BNode {
+	// the result node.
+	// it's allowed to be bigger than 1 page and will be split if so
+
+	new := BNode{data: make([]byte, 2*BTREE_PAGE_SIZE)}
+
+	// where to insert the key?
+	idx := nodeLookupLE(node, key)
+	// act depending on the node type
+	switch node.btype() {
+	case BNODE_LEAF:
+		// leaf, node.getKey(idx) <= key
+		if bytes.Equal(key, node.getKey(idx)) {
+			// found the key, update it.
+			leafUpdate(new, node, idx, key, val)
+		} else {
+			// insert it after the position.
+			leafInsert(new, node, idx+1, key, val)
+		}
+	case BNODE_NODE:
+		// internal node, insert it to a kid node.
+		nodeInsert(tree, new, node, idx, key, val)
+
+	default:
+		panic("bad node!")
+	}
+
+	return new
 }
