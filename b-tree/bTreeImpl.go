@@ -248,3 +248,7 @@ func treeInsert(tree *BTree, node BNode, key []byte, val []byte) BNode {
 
 	return new
 }
+
+//Handle Internal Nodes
+
+// part of the treeInsert(): KV insertion to an internal node
