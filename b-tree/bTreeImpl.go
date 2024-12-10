@@ -1,6 +1,9 @@
 package b_tree
 
-import "encoding/binary"
+import (
+	"bytes"
+	"encoding/binary"
+)
 
 type BNode struct {
 	data []byte // can be dumped to the disk
@@ -118,4 +121,22 @@ func (node BNode) getVal(idx uint16) []byte {
 // node size in bytes
 func (node BNode) nbytes() uint16 {
 	return node.kvPos(node.nkeys())
+}
+
+// returns the first kid node whose range intersects the key. (kid[i] <= key)
+
+func nodeLookupLE(node BNode, key []byte) uint16 {
+	nkeys := node.nkeys()
+	found := uint16(0)
+
+	for i := uint16(1); i < nkeys; i++ {
+		cmp := bytes.Compare(node.getKey(i), key)
+		if cmp <= 0 {
+			found = i
+		}
+		if cmp >= 0 {
+			break
+		}
+	}
+	return found
 }
