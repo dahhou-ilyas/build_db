@@ -140,3 +140,45 @@ func nodeLookupLE(node BNode, key []byte) uint16 {
 	}
 	return found
 }
+
+// add a new key to a leaf node
+
+func leafInsert(new BNode, old BNode, idx uint16, key []byte, val []byte) {
+	new.setHeader(BNODE_LEAF, old.nkeys()+1)
+	nodeAppendRange(new, old, 0, 0, idx)
+	nodeAppendKV(new, idx, 0, key, val)
+	nodeAppendRange(new, old, idx+1, idx, old.nkeys()-idx)
+}
+
+// copy multiple KVs into the position
+func nodeAppendRange(new BNode, old BNode,
+	dstNew uint16, srcOld uint16, n uint16) {
+	if srcOld+n > old.nkeys() {
+		panic("")
+	}
+	if dstNew > new.nkeys() {
+		panic("")
+	}
+
+	if n == 0 {
+		return
+	}
+	// pointers
+	for i := uint16(0); i < n; i++ {
+		new.setPtr(dstNew+i, old.getPtr(srcOld+i))
+	}
+
+	// offsets
+	dstBegin := new.getOffset(dstNew)
+	srcBegin := old.getOffset(srcOld)
+
+	for i := uint16(1); i <= n; i++ { // NOTE: the range is [1, n]
+		offset := dstBegin + old.getOffset(srcOld+i) - srcBegin
+		new.setOffset(dstNew+i, offset)
+	}
+
+	// KVs
+	begin := old.kvPos(srcOld)
+	end := old.kvPos(srcOld + n)
+	copy(new.data[new.kvPos(dstNew):], old.data[begin:end])
+}
