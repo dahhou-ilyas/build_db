@@ -150,15 +150,31 @@ func leafInsert(new BNode, old BNode, idx uint16, key []byte, val []byte) {
 	nodeAppendRange(new, old, idx+1, idx, old.nkeys()-idx)
 }
 
+// Mettre à jour la valeur d'une clé existante dans un nœud feuille
+func leafUpdate(new BNode, old BNode, idx uint16, key []byte, val []byte) {
+	// Configurer l'en-tête du nouveau nœud avec le type feuille et le même nombre de clés
+	new.setHeader(BNODE_LEAF, old.nkeys())
+
+	// Copier toutes les entrées avant l'index à mettre à jour
+	nodeAppendRange(new, old, 0, 0, idx)
+
+	// Ajouter la clé mise à jour avec la nouvelle valeur
+	// Le pointeur reste le même que dans le nœud original
+	nodeAppendKV(new, idx, old.getPtr(idx), key, val)
+
+	// Copier toutes les entrées après l'index mis à jour
+	nodeAppendRange(new, old, idx+1, idx+1, old.nkeys()-(idx+1))
+}
+
 // copy multiple KVs into the position
 // a comprendre mieux
 func nodeAppendRange(new BNode, old BNode,
 	dstNew uint16, srcOld uint16, n uint16) {
 	if srcOld+n > old.nkeys() {
-		panic("")
+		panic("out of plage")
 	}
 	if dstNew+n > new.nkeys() {
-		panic("")
+		panic("out of plage")
 	}
 
 	if n == 0 {
