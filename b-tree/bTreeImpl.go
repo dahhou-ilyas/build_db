@@ -176,7 +176,6 @@ func nodeAppendRange(new BNode, old BNode,
 	if dstNew+n > new.nkeys() {
 		panic("out of plage")
 	}
-
 	if n == 0 {
 		return
 	}
@@ -184,7 +183,6 @@ func nodeAppendRange(new BNode, old BNode,
 	for i := uint16(0); i < n; i++ {
 		new.setPtr(dstNew+i, old.getPtr(srcOld+i))
 	}
-
 	// offsets
 	dstBegin := new.getOffset(dstNew)
 	srcBegin := old.getOffset(srcOld)
@@ -193,7 +191,6 @@ func nodeAppendRange(new BNode, old BNode,
 		offset := dstBegin + old.getOffset(srcOld+i) - srcBegin
 		new.setOffset(dstNew+i, offset)
 	}
-
 	// KVs
 	begin := old.kvPos(srcOld)
 	end := old.kvPos(srcOld + n)
@@ -252,3 +249,10 @@ func treeInsert(tree *BTree, node BNode, key []byte, val []byte) BNode {
 //Handle Internal Nodes
 
 // part of the treeInsert(): KV insertion to an internal node
+
+func nodeInsert(
+	tree *BTree, new BNode, node BNode, idx uint16,
+	key []byte, val []byte,
+) {
+
+}
