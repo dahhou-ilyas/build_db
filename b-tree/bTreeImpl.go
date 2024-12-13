@@ -298,3 +298,24 @@ func nodeSplit3(old BNode) (uint16, [3]BNode) {
 	}
 	return 3, [3]BNode{leftleft, middle, right}
 }
+
+//Update Internal Nodes
+/*
+Inserting a key into a node can result in either 1, 2 or 3 nodes. The parent node must
+update itself accordingly. The code for updating an internal node is similar to that for
+updating a leaf node.
+*/
+
+// replace a link with multiple links
+func nodeReplaceKidN(
+	tree *BTree, new BNode, old BNode, idx uint16,
+	kids ...BNode,
+) {
+	inc := uint16(len(kids))
+	new.setHeader(BNODE_NODE, old.nkeys()+inc-1)
+	nodeAppendRange(new, old, 0, 0, idx)
+	for i, node := range kids {
+		nodeAppendKV(new, idx+uint16(i), tree.new(node), node.getKey(0), nil)
+	}
+	nodeAppendRange(new, old, idx+inc, idx+1, old.nkeys()-(idx+1))
+}
