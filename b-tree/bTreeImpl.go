@@ -146,6 +146,8 @@ func nodeLookupLE(node BNode, key []byte) uint16 {
 func leafInsert(new BNode, old BNode, idx uint16, key []byte, val []byte) {
 	new.setHeader(BNODE_LEAF, old.nkeys()+1)
 	nodeAppendRange(new, old, 0, 0, idx)
+	// on  mette ptr = 0 par ce que on a toujours ajouté un key/value dans leaf node donc on il y a aucun childrent pour cette raison on fait 0. c'est comme un valuer par
+	// défaul qui dit il ne point sur aucun chose
 	nodeAppendKV(new, idx, 0, key, val)
 	nodeAppendRange(new, old, idx+1, idx, old.nkeys()-idx)
 }
