@@ -254,5 +254,14 @@ func nodeInsert(
 	tree *BTree, new BNode, node BNode, idx uint16,
 	key []byte, val []byte,
 ) {
-
+	// get and deallocate the kid node
+	kptr := node.getPtr(idx)
+	knode := tree.get(kptr)
+	tree.del(kptr)
+	// recursive insertion to the kid node
+	knode = treeInsert(tree, knode, key, val)
+	// split the result
+	nsplit, splited := nodeSplit3(knode)
+	// update the kid links
+	nodeReplaceKidN(tree, new, node, idx, splited[:nsplit]...)
 }
