@@ -319,3 +319,6 @@ func nodeReplaceKidN(
 	}
 	nodeAppendRange(new, old, idx+inc, idx+1, old.nkeys()-(idx+1))
 }
+
+//We have finished the B-tree insertion. Deletion and the rest of the code will be introduced
+//in the next part
