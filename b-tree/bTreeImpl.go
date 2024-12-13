@@ -161,7 +161,7 @@ func leafUpdate(new BNode, old BNode, idx uint16, key []byte, val []byte) {
 	nodeAppendRange(new, old, 0, 0, idx)
 
 	// Ajouter la clé mise à jour avec la nouvelle valeur
-	// Le pointeur reste le même que dans le nœud original
+	// Le pointeur (qui est 0) reste le même que dans le nœud original
 	nodeAppendKV(new, idx, old.getPtr(idx), key, val)
 
 	// Copier toutes les entrées après l'index mis à jour
