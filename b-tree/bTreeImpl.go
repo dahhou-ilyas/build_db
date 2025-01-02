@@ -274,7 +274,42 @@ func nodeInsert(
 // the second node always fits on a page.
 
 func nodeSplit2(left BNode, right BNode, old BNode) {
-	// code omitted...
+	// Calculate the split point that ensures the right node fits in a page
+	nkeys := old.nkeys()
+	var i uint16
+	var subtree_size uint16
+
+	// Find the split point by accumulating KV pairs until we reach page size
+	for i = 0; i < nkeys; i++ {
+		// Size of current key-value pair
+		klen := uint16(len(old.getKey(i)))
+		vlen := uint16(len(old.getVal(i)))
+		pair_size := 4 + klen + vlen // 4 bytes for lengths + key + value
+
+		// Size including header, pointers, and offsets
+		subtree_size = HEADER + 8*(i+1) + 2*(i+1) + subtree_size + pair_size
+
+		// Check if adding this pair would exceed page size for right node
+		if subtree_size > BTREE_PAGE_SIZE {
+			break
+		}
+	}
+
+	// Split point found at index i
+	nsplit := i
+
+	// Configure left node
+	left.setHeader(old.btype(), nsplit)
+	nodeAppendRange(left, old, 0, 0, nsplit)
+
+	// Configure right node
+	right.setHeader(old.btype(), nkeys-nsplit)
+	nodeAppendRange(right, old, 0, nsplit, nkeys-nsplit)
+
+	// Validate the split
+	if right.nbytes() > BTREE_PAGE_SIZE {
+		panic("right node too big after split")
+	}
 }
 
 // split a node if it's too big. the results are 1~3 nodes.
