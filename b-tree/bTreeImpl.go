@@ -386,6 +386,35 @@ func treeDelete(tree *BTree, node BNode, key []byte) BNode {
 	}
 }
 
+// nodeReplace2Kid remplace deux nœuds enfants consécutifs par un seul nœud fusionné
+func nodeReplace2Kid(
+	new BNode, // le nouveau nœud à construire
+	old BNode, // l'ancien nœud parent
+	idx uint16, // index du premier nœud à remplacer
+	ptr uint64, // pointeur vers le nœud fusionné
+	key []byte, // première clé du nœud fusionné
+) {
+	// Le nombre de clés diminue de 1 car on fusionne deux nœuds
+	new.setHeader(BNODE_NODE, old.nkeys()-1)
+
+	// Copier toutes les entrées avant les nœuds à fusionner
+	nodeAppendRange(new, old, 0, 0, idx)
+
+	// Ajouter le nouveau nœud fusionné
+	// On utilise nil comme valeur car c'est un nœud interne
+	nodeAppendKV(new, idx, ptr, key, nil)
+
+	// Copier toutes les entrées après les nœuds fusionnés
+	// On saute idx+2 car on remplace deux nœuds par un seul
+	nodeAppendRange(
+		new,                 // destination
+		old,                 // source
+		idx+1,               // position de destination
+		idx+2,               // position source (on saute les 2 nœuds fusionnés)
+		old.nkeys()-(idx+2), // nombre d'éléments restants
+	)
+}
+
 func nodeDelete(tree *BTree, node BNode, idx uint16, key []byte) BNode {
 	// recurse into the kid
 	kptr := node.getPtr(idx)

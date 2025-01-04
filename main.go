@@ -7,10 +7,6 @@ import (
 	"time"
 )
 
-func main() {
-	fmt.Println("Hello World")
-}
-
 func saveData1(path string, data []byte) error {
 	fp, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
@@ -114,3 +110,7 @@ func logAppend(fp *os.File, line string) error {
 }
 
 //maintenant on try to implemtner un B_tree et voire c'est quoi sa relation avec indexation et KV store
+
+func main() {
+
+}
