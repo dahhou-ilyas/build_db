@@ -65,7 +65,7 @@ func (c *C) Del(key string) bool {
 }
 
 // get récupère une valeur par sa clé
-func (c *C) get(key string) (string, bool) {
+func (c *C) Get(key string) (string, bool) {
 	val, ok := c.tree.Get([]byte(key))
 	if !ok {
 		return "", false

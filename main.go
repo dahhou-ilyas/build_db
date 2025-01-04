@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -120,6 +121,13 @@ func main() {
 	fmt.Println("Test 1: Insertion simple")
 	testBasicInsert(c)
 
+	fmt.Println("\nTest 2: Test de suppression")
+	testDeletion(c)
+
+	// Test 5: Test de récupération
+	fmt.Println("\nTest 5: Test de récupération")
+	testRetrieval(c)
+
 }
 
 func testBasicInsert(c *b_tree.C) {
@@ -140,6 +148,71 @@ func testBasicInsert(c *b_tree.C) {
 		return
 	}
 
-	fmt.Println(c)
 	fmt.Println("✅ Test d'insertion réussi")
+}
+
+func testDeletion(c *b_tree.C) {
+	defer c.Clear()
+
+	// Préparer les données
+	c.Add("key1", "value1")
+	c.Add("key2", "value2")
+	c.Add("key3", "value3")
+
+	// Tester la suppression
+	if !c.Del("key2") {
+		fmt.Println("❌ Échec de la suppression de key2")
+		return
+	}
+
+	// Vérifier que la clé a bien été supprimée
+	if val, exists := c.Get("key2"); exists {
+		fmt.Printf("❌ La clé supprimée existe toujours avec la valeur: %s\n", val)
+		return
+	}
+
+	if err := c.Verify(); err != nil {
+		fmt.Printf("❌ Échec de la vérification après suppression: %v\n", err)
+		return
+	}
+
+	fmt.Println("✅ Test de suppression réussi")
+}
+
+func testRetrieval(c *b_tree.C) {
+	defer c.Clear()
+
+	// Préparer un grand jeu de données avec des clés de différentes tailles
+	testData := map[string]string{
+		"a":               "court",
+		"clé_longue":      "valeur moyenne",
+		"clé_très_longue": strings.Repeat("x", 100),
+	}
+
+	// Insérer les données
+	for k, v := range testData {
+		c.Add(k, v)
+	}
+
+	// Tester la récupération
+	for k, expectedVal := range testData {
+		val, exists := c.Get(k)
+		if !exists {
+			fmt.Printf("❌ Clé non trouvée: %s\n", k)
+			return
+		}
+		if val != expectedVal {
+			fmt.Printf("❌ Valeur incorrecte pour %s. Attendu: %s, Obtenu: %s\n",
+				k, expectedVal, val)
+			return
+		}
+	}
+
+	// Tester une clé inexistante
+	if _, exists := c.Get("clé_inexistante"); exists {
+		fmt.Println("❌ Une clé inexistante a été trouvée")
+		return
+	}
+
+	fmt.Println("✅ Test de récupération réussi")
 }
