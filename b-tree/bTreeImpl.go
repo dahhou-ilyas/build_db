@@ -538,3 +538,35 @@ func (tree *BTree) Insert(key []byte, val []byte) {
 		tree.root = tree.new(splitted[0])
 	}
 }
+
+func (tree *BTree) Get(key []byte) ([]byte, bool) {
+	// Si l'arbre est vide, retourne false
+	if tree.root == 0 {
+		return nil, false
+	}
+
+	// Commence à la racine
+	node := tree.get(tree.root)
+
+	// Tant qu'on n'a pas trouvé la clé ou atteint une feuille
+	for {
+		// Trouve l'index du plus grand enfant dont la clé est <= à la clé recherchée
+		idx := nodeLookupLE(node, key)
+
+		switch node.btype() {
+		case BNODE_LEAF:
+			// Dans un nœud feuille, vérifie si la clé existe
+			if bytes.Equal(key, node.getKey(idx)) {
+				return node.getVal(idx), true
+			}
+			return nil, false
+
+		case BNODE_NODE:
+			// Dans un nœud interne, descend vers l'enfant approprié
+			node = tree.get(node.getPtr(idx))
+
+		default:
+			panic("bad node type")
+		}
+	}
+}

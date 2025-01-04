@@ -1,6 +1,7 @@
 package main
 
 import (
+	"build_your_own_db/b-tree"
 	"fmt"
 	"math/rand"
 	"os"
@@ -112,5 +113,33 @@ func logAppend(fp *os.File, line string) error {
 //maintenant on try to implemtner un B_tree et voire c'est quoi sa relation avec indexation et KV store
 
 func main() {
+	// Créer une nouvelle instance de test
+	c := b_tree.NewC()
 
+	// Test 1: Insertion simple et vérification
+	fmt.Println("Test 1: Insertion simple")
+	testBasicInsert(c)
+
+}
+
+func testBasicInsert(c *b_tree.C) {
+	defer c.Clear()
+
+	// Insérer quelques valeurs
+	c.Add("key1", "value1")
+	c.Add("key2", "value2")
+	c.Add("key3", "value3")
+
+	if err := c.Verify(); err != nil {
+		fmt.Printf("❌ Échec de la vérification après insertion: %v\n", err)
+		return
+	}
+
+	if c.Size() != 3 {
+		fmt.Printf("❌ Taille incorrecte. Attendu: 3, Obtenu: %d\n", c.Size())
+		return
+	}
+
+	fmt.Println(c)
+	fmt.Println("✅ Test d'insertion réussi")
 }
